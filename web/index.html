@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Přihořívá Solver | Automatické hádání slova dne</title>
+  <meta name="description" content="Autonomní AI aplikace pro automatické luštění a sémantické hádání tajného slova dne na portálu prihorivahori.cz a jeho jazykových mutacích.">
+  
+  <!-- Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="glow-orb orb-1"></div>
+  <div class="glow-orb orb-2"></div>
+  <div class="glow-orb orb-3"></div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-icon">🔥</div>
+        <div>
+          <h1 class="logo-title">PŘIHOŘÍVÁ <span class="gradient-text">SOLVER</span></h1>
+          <p class="logo-subtitle">Autonomní sémantický vyhledávač tajného slova dne</p>
+        </div>
+      </div>
+
+      <div class="header-status">
+        <button id="restartServerBtn" class="icon-btn" title="Restartovat webový server" style="margin-right: 12px; color: #ff8f5c;">
+          <span class="btn-icon">🔄</span>
+        </button>
+        <div class="server-badge" id="serverStatusBadge">
+          <span class="status-dot"></span>
+          <span id="serverStatusText">Připojeno k API</span>
+        </div>
+        <button id="soundToggleBtn" class="icon-btn" title="Přepnout zvukové efekty">
+          <span id="soundIcon">🔊</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="main-grid">
+      <!-- Control Panel -->
+      <section class="card control-card">
+        <div class="card-header">
+          <h2 class="card-title">⚙️ Ovládací panel</h2>
+          <span class="badge" id="modeBadge">DENNÍ HRA</span>
+        </div>
+
+        <div class="control-row">
+          <div class="form-group">
+            <label for="langSelect">Jazyková mutace</label>
+            <select id="langSelect" class="custom-select">
+              <option value="cs" selected>🇨🇿 Čeština (prihorivahori.cz)</option>
+              <option value="sk">🇸🇰 Slovenčina (prihorieva.sk)</option>
+              <option value="pl">🇵🇱 Polski (cieplogoraco.pl)</option>
+              <option value="hr">🇭🇷 Hrvatski (toplije.app)</option>
+              <option value="de">🇩🇪 Deutsch (wirdwaermer.de)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="gameModeSelect">Herní režim</label>
+            <select id="gameModeSelect" class="custom-select">
+              <option value="daily" selected>Denní slovo (Daily)</option>
+              <option value="mega">Týdenní slovo (Mega)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="form-group">
+            <label for="speedSelect">Rychlost dotazů</label>
+            <select id="speedSelect" class="custom-select">
+              <option value="fast">Blesková (~300ms)</option>
+              <option value="normal" selected>Vyvážená (~500ms)</option>
+              <option value="slow">Opatrná (~900ms)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="maxGuessesInput">Max. počet pokusů</label>
+            <input type="number" id="maxGuessesInput" class="custom-input" value="100" min="10" max="300">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button id="startBtn" class="btn btn-primary btn-glow">
+            <span class="btn-icon">⚡</span>
+            <span>Spustit automatické hádání</span>
+          </button>
+          <button id="stopBtn" class="btn btn-secondary" disabled>
+            <span>Zastavit</span>
+          </button>
+        </div>
+
+        <!-- Manual Word Probe -->
+        <div class="manual-probe-box">
+          <label for="manualWordInput">Ruční ověření slova</label>
+          <div class="input-with-button">
+            <input type="text" id="manualWordInput" class="custom-input" placeholder="např. hudba, kov, triangl...">
+            <button id="manualGuessBtn" class="btn btn-accent">Otestovat</button>
+          </div>
+          <p class="rule-hint">💡 <strong>Pravidlo hledání:</strong> Hledaná slova jsou výhradně běžná česká slova v jednotném čísle a v 1. pádě (např. <em>strom</em>, <em>dům</em>, <em>auto</em>). Slova nesplňující tuto podmínku jsou z hledání vyřazena.</p>
+        </div>
+
+        <!-- Meta info -->
+        <div class="meta-strip">
+          <div class="meta-item">
+            <span class="meta-label" id="prevWordLabel">Včerejší slovo:</span>
+            <span class="meta-value" id="yesterdayWord">—</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Úspěšnost hráčů:</span>
+            <span class="meta-value" id="communityWinRate">—</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Dashboard & Progress -->
+      <section class="card dashboard-card">
+        <div class="card-header">
+          <h2 class="card-title">📈 Živý stav luštění</h2>
+          <span class="phase-indicator" id="phaseIndicator">Připraven ke startu</span>
+        </div>
+
+        <!-- Stats Counter Row -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-number" id="statGuesses">0</span>
+            <span class="stat-desc">Počet pokusů</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number highlight-score" id="statBestScore">0.0 %</span>
+            <span class="stat-desc">Nejvyšší podobnost</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="statBestWord">—</span>
+            <span class="stat-desc">Nejžhavější slovo</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number" id="statTimer">00:00</span>
+            <span class="stat-desc">Doba hledání</span>
+          </div>
+        </div>
+
+        <!-- Temperature Meter -->
+        <div class="gauge-wrapper">
+          <div class="gauge-labels">
+            <span>❄️ Zima (&lt;50%)</span>
+            <span>☁️ Chladno (50-70%)</span>
+            <span>☀️ Teplo (70-85%)</span>
+            <span>🔥 Přihořívá (85-95%)</span>
+            <span>🏆 HOŘÍ (100%)</span>
+          </div>
+          <div class="gauge-track">
+            <div class="gauge-fill" id="gaugeFill" style="width: 0%;"></div>
+            <div class="gauge-marker" id="gaugeMarker" style="left: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Victory Banner (Hidden initially) -->
+        <div class="victory-banner" id="victoryBanner">
+          <div class="victory-icon">🎉</div>
+          <div class="victory-content">
+            <h3 class="victory-title">TAJNÉ SLOVO ODHALENO!</h3>
+            <div class="victory-word" id="victoryWord">TRIANGL</div>
+            <p class="victory-sub" id="victorySub">Uhádnuto za 12 pokusů se 100% shodou</p>
+          </div>
+        </div>
+
+        <!-- Active Domains Bar -->
+        <div class="domains-box" id="domainsBox" style="display: none;">
+          <span class="domains-label">Aktivní sémantické domény:</span>
+          <div class="domain-tags" id="domainTags"></div>
+        </div>
+      </section>
+
+      <!-- Guesses Feed & History -->
+      <section class="card feed-card full-width">
+        <div class="card-header">
+          <div class="feed-header-left">
+            <h2 class="card-title">📜 Historie a žebříček pokusů</h2>
+            <span class="badge" id="guessesCountBadge">0 záznamů</span>
+          </div>
+          <div class="feed-header-actions">
+            <button class="pill-btn active" id="filterAllBtn">Všechny (chronologicky)</button>
+            <button class="pill-btn" id="filterTopBtn">Seřadit od nejteplejších</button>
+            <button class="btn btn-sm btn-outline" id="clearHistoryBtn">Vymazat</button>
+          </div>
+        </div>
+
+        <!-- Table / List -->
+        <div class="table-responsive">
+          <table class="guesses-table">
+            <thead>
+              <tr>
+                <th style="width: 70px;">#</th>
+                <th>Slovo</th>
+                <th style="width: 140px;">Podobnost</th>
+                <th style="width: 150px;">Hodnocení</th>
+                <th>Vizuální teplota</th>
+              </tr>
+            </thead>
+            <tbody id="guessesTableBody">
+              <tr class="empty-row" id="emptyRow">
+                <td colspan="5">Zatím nebyly odeslány žádné pokusy. Klikněte na <strong>Spustit automatické hádání</strong>.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>Přihořívá Solver &bull; Vyvinuto pro analýzu sémantické umělé inteligence ve hře <strong>Přihořívá hoří</strong> &bull; 2026</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

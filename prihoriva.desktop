@@ -1,0 +1,29 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Přihořívá Solver
+GenericName=Slovní logická hra
+Comment=Automatický sémantický řešitel pro prihorivahori.cz
+Exec=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver/launch.sh
+Icon=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver/icon.png
+Path=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver
+Terminal=false
+Categories=Game;LogicGame;
+Keywords=prihoriva;prihorivahori;solver;game;hra;slova;hadani;
+StartupNotify=true
+Actions=cli-mode;stop-server;open-folder;
+
+[Desktop Action cli-mode]
+Name=Spustit v terminálu (CLI)
+Exec=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver/launch.sh cli
+Icon=utilities-terminal
+
+[Desktop Action stop-server]
+Name=Zastavit webový server
+Exec=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver/launch.sh stop
+Icon=process-stop
+
+[Desktop Action open-folder]
+Name=Otevřít složku projektu
+Exec=/home/kit/.gemini/antigravity-ide/scratch/prihoriva-solver/launch.sh open-folder
+Icon=folder-open

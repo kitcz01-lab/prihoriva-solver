@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Runtime logs and process IDs
+*.log
+.server.pid
+
+# Session cache and authentication tokens
+data/sessions/
+.env
+.env.*
+
